@@ -40,12 +40,20 @@ AutoTransQF = function(mdata, paramstruct = NULL) {
   FeatureNames = c()
   beta = -1
   alpha = -1
+  all_alpha = c()
+  all_beta = c()
+  
   
   #Extract Feature Names
   for (i in 1:row_num) {
     feature = paste("Feature",i, sep = '')
     FeatureNames = append(FeatureNames, feature)
   }
+  
+  if(length(paramstruct) == 0){
+    istat = istat
+    iscreenwrite = iscreenwrite
+    FeatureNames = FeatureNames} 
   
   if(length(paramstruct)!=0){
     if (!is.null(paramstruct$istat) && !is.null(paramstruct$iscreenwrite) && !is.null(paramstruct$FeatureNames)) {
@@ -73,11 +81,13 @@ AutoTransQF = function(mdata, paramstruct = NULL) {
     #needed to perform transformation, use default feature names
     
     if (row_num != length(FeatureNames)){
-      cat(paste('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', '\n'))
-      cat(paste('!!!!!!!!!! Warning: Number of Feature Names!!!!!!!!!!!!!!!!', '\n'))
-      cat(paste('!!!!!!!!!! Unmatched with Number of Features!!!!!!!!!!!!!!!', '\n'))
-      cat(paste('!!!!!!!!!! Use Default Set for Feature Names!!!!!!!!!!!!!!!', '\n'))
-      cat(paste('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', '\n'))
+      
+      message("\n")
+      warning('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', '\n', 
+              '!!!!!!!!!! Warning: Number of Feature Names!!!!!!!!!!!!!!!!', '\n', 
+              '!!!!!!!!!! Unmatched with Number of Features!!!!!!!!!!!!!!!', '\n',
+              '!!!!!!!!!! Use Default Set for Feature Names!!!!!!!!!!!!!!!', '\n',
+              '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', '\n')
       
       FeatureNames = c()
       for (i in 1:row_num){
@@ -94,46 +104,59 @@ AutoTransQF = function(mdata, paramstruct = NULL) {
     
     if (sum(is.na(vari)!= 0)) {
       #if vari contains missing value
-      cat(paste('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', '\n'))
-      cat(paste('!!!!!!!!!!!!!!   Warning from AutoTransQF.m:   !!!!!!!!!!!!', '\n'))
-      cat(paste('!!!!!!!!!!', FeatureNames[i], 'Contain Missing Value!!!!!!', '\n'))
-      cat(paste('!!!!!       Returning Orignial Data          !!!!!!!!!!!!!!', '\n'))
-      cat(paste('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!','\n'))
+      
+      message("\n")
+      warning('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', '\n',
+              '!!!!!!!!!!!!!!   Warning from AutoTransQF.R:   !!!!!!!!!!!!', '\n',
+              '!!!!!!!!!!', FeatureNames[i], ' Contains Missing Value!!!!!!', '\n',
+              '!!!!!       Returning Orignial Data          !!!!!!!!!!!!!!', '\n',
+              '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!','\n')
+      
       final_vari = vari
       text_k = "return original vector"
       
       transformed_data[i,] = final_vari
-      #not sure about this line, line119 in original file
+      
       transformation_info = paste(FeatureNames[i], ": ", text_k, sep = '')
-      transformation = append(transformation, text_k)
+      transformation = append(transformation, transformation_info)
+      all_beta = append(all_beta, beta)
+      all_alpha = append(all_alpha, alpha)
       
     } else if(abs(sd(vari)) < 1e-6 | (is.na(sd(vari)) == TRUE)){
       #if number of unique values is greater than 2
-      cat(paste('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!IIIIIIIIIIIIIIIII!!!!!!!!!!', '\n'))
-      cat (paste('!!!    Warning from AutoTransQF.m:   !!!', '\n')) 
-      cat (paste('!!!          Standard deviation = 0            !!!', '\n')) 
-      cat (paste('!!!              Returning all zeros              !!!', '\n'))
-      cat (paste('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!IIIIIIIIIIIIIIIII!!!!!!!!!!', '\n'))
+      
+      message("\n")
+      warning('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!IIIIIIIIIIIIIIIII!!!!!!!!!!', '\n',
+              '!!!    Warning from AutoTransQF.R:   !!!', '\n',
+              '!!!          Standard deviation = 0            !!!', '\n',
+              '!!!              Returning all zeros              !!!', '\n',
+              '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!IIIIIIIIIIIIIIIII!!!!!!!!!!', '\n')
+      
       final_vari = matrix(0, nrow = row_num, ncol = col_num)
       text_k =  'Return zero vector'
-      ###confused here
+      
       transformed_data[i,] = final_vari[i,]
       transformation_info = paste('Feature', i, ': ', text_k, sep = '')
       transformation = append(transformation, transformation_info)
+      all_beta = append(all_beta, beta)
+      all_alpha = append(all_alpha, alpha)
       
     } else if(length(unique(vari)) <= 2){
       #test for binary data
-      cat(paste('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', '\n'))
-      cat(paste('!!!   Warning from AutoTransQF.m:    !!!', '\n'))
-      cat(paste('!!!   Binary Variable                !!!', '\n'))
-      cat(paste('!!!   Return original values         !!!', '\n'))
-      cat('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+      message("\n")
+      warning(' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', '\n',
+              '!!!!!!!!!!!!!!    Warning from AutoTransQF.R:    !!!!!!!!!!!', '\n',
+              '!!!!!!!!!!!!!!!   Binary Variable               !!!!!!!!!!!', '\n',
+              '!!!!!!!!!!!!!!!   Return original values         !!!!!!!!!!!', '\n',
+              '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
       final_vari = vari
       text_k = 'No Transformation'
       
       transformed_data[i,] = final_vari
       transformation_info = paste('Feature', i, ': ', text_k, sep = '')
       transformation = append(transformation, transformation_info)
+      all_beta = append(all_beta, beta)
+      all_alpha = append(all_alpha, alpha)
       
     } else {
       
@@ -183,32 +206,32 @@ AutoTransQF = function(mdata, paramstruct = NULL) {
       transformed_data[i,] = final_vari
       transformation_info = paste('Feature', i, ': ', text_k, sep = '')
       transformation = append(transformation, transformation_info)
+      all_beta = append(all_beta, beta)
+      all_alpha = append(all_alpha, alpha)
     }
     
     #Display transformation information on screen
     if (iscreenwrite == 1) {
-      cat("\n")
+      message("\n")
       if(istat == 1) {
-        cat(c('************ Transformation of ', FeatureNames[i],' **********'),'\n')
-        cat(c('Transformation Criterion: Minimize Log ', 
-              '(Anderson_Darling Test Statistic) (Standard Normal)'),'\n')
+        message('************ Transformation of ', FeatureNames[i],' **********','\n',
+                'Transformation Criterion: Minimize Log ', '(Anderson_Darling Test Statistic) (Standard Normal)', '\n')
       } else if(istat == 2) {
-        cat(c('************ Transformation of ', FeatureNames[i], ' **********'),'\n')
-        cat(c('Transformation Criterion: Minimize Skewness'),'\n')
+        message('************ Transformation of ', FeatureNames[i],' **********','\n',
+                'Transformation Criterion: Minimize Skewness', '\n')
       }
       
-      cat('Log A-D Stat Before Transformation:', num2str(log(ADStatQF(vari))),'\n')
-      cat('Skewness Before Transformation: ', num2str(skewness(vari)),'\n')
-      cat('Selected Transformation: ', text_k,'\n')
-      cat(paste('Selected Transformation: Transformation Parameter alpha = ', alpha, sep = ''), '\n')
-      cat('Skewness After Transformation: ', num2str(skewness(final_vari)),'\n')
-      cat('Log A-D Stat After Transformation: ', num2str(log(ADStatQF(final_vari))),'\n')
-      cat('*****************************************************','\n')
+      message('Log A-D Stat Before Transformation:', num2str(log(ADStatQF(vari))),'\n',
+              'Skewness Before Transformation: ', num2str(skewness(vari)),'\n',
+              'Selected Transformation: ', text_k,'\n',
+              'Selected Transformation: Transformation Parameter alpha = ', alpha, '\n',
+              'Skewness After Transformation: ', num2str(skewness(final_vari)),'\n',
+              'Log A-D Stat After Transformation: ', num2str(log(ADStatQF(final_vari))),'\n',
+              '*****************************************************','\n')
     }
     
   }
-  #return_value = list(transformed_data, beta, alpha)
-  return_value = list(transformed_data, beta, alpha)
+  return_value = list(data = transformed_data, beta =  all_beta, alpha = all_alpha)
   return(return_value)
 }
 

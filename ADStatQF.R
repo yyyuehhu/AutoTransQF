@@ -3,7 +3,7 @@ ADStatQF = function(test) {
   #vectors tested need lengths greater than 7
   n = length(test)
   if (n < 7) {
-    cat('Sample Size must be greater than 7.')
+    warning('Sample Size must be greater than 7.')
   }
   else {
     test1 = sort(test)

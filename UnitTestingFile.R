@@ -2,7 +2,7 @@ source('/Users/ko/Documents/GitHub/Project/Auto Transformation Matlab_R/R Versio
 source('/Users/ko/Documents/GitHub/Project/Auto Transformation Matlab_R/R Version/autotransfuncQF.R')
 source('/Users/ko/Documents/GitHub/Project/Auto Transformation Matlab_R/R Version/ADStatQF.R')
 
-itest = 18
+itest = 1
 if (itest == 1) {    
     #check default setting 
     idat = read.csv('/Users/ko/Documents/GitHub/Project/Auto Transformation Matlab_R/Matlab Version/itest.csv', header = FALSE)
@@ -69,6 +69,7 @@ if (itest == 1) {
     end_time = Sys.time()
     Time_used = end_time - start_time
     cat(paste('Took', Time_used, 'secs.'))
+    message('\n')
   
 } else if(itest == 7) {
     #normal distributed data vector 
@@ -80,6 +81,7 @@ if (itest == 1) {
     end_time = Sys.time()
     Time_used = end_time - start_time
     cat(paste('Took', Time_used, 'secs.'))
+    message('\n')
   
 } else if(itest == 8) {
     #data vector with binary values (test error message)
@@ -90,6 +92,7 @@ if (itest == 1) {
     end_time = Sys.time()
     Time_used = end_time - start_time
     cat('\n', paste('Took', Time_used, 'secs.'))
+    message('\n')
     
 } else if(itest == 9) {
     #Standard deviation is equal to 0
@@ -100,6 +103,7 @@ if (itest == 1) {
     end_time = Sys.time()
     Time_used = end_time - start_time
     cat(paste('Took', Time_used, 'secs.'))
+    message('\n')
   
 } else if(itest == 10) {
     #computational time of high dimension data
@@ -226,6 +230,7 @@ if (itest == 1) {
     end_time = Sys.time()
     Time_used = end_time - start_time
     cat(paste('Took', Time_used, 'secs.'))
+    message('\n')
   
 }
   
